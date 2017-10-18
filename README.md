@@ -13,15 +13,15 @@ ALS-WR算法，简单地说就是：
 5 重复迭代第3，第4步，最后可以收敛到稳定的userFactors和itemFactors。  
 6 对itemId进行推断就为userFactors * itemId = rating value；对userId进行推断就为itemFactors * userId = rating value。  
 
-#SparkALSByStreaming.java
-基于Hadoop、Flume、Kafka、spark-streaming、logback、商城系统的实时推荐系统DEMO
-Real time recommendation system DEMO based on Hadoop, Flume, Kafka, spark-streaming, logback and mall system
-商城系统采集的数据集格式 Data Format:
-用户ID，商品ID，用户行为评分，时间戳
-UserID,ItemId,Rating,TimeStamp
-53,1286513,9,1508221762
-53,1172348420,9,1508221762
-53,1179495514,12,1508221762
-53,1184890730,3,1508221762
-53,1210793742,159,1508221762
-53,1215837445,9,1508221762
+#SparkALSByStreaming.java  
+基于Hadoop、Flume、Kafka、spark-streaming、logback、商城系统的实时推荐系统DEMO  
+Real time recommendation system DEMO based on Hadoop, Flume, Kafka, spark-streaming, logback and mall system  
+商城系统采集的数据集格式 Data Format:  
+用户ID，商品ID，用户行为评分，时间戳  
+UserID,ItemId,Rating,TimeStamp  
+53,1286513,9,1508221762  
+53,1172348420,9,1508221762  
+53,1179495514,12,1508221762  
+53,1184890730,3,1508221762  
+53,1210793742,159,1508221762  
+53,1215837445,9,1508221762  
