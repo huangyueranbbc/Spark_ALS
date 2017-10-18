@@ -109,7 +109,7 @@ public final class SparkALSByStreaming {
 				int numIterations = 6; // 训练次数
 
 				// 得到训练模型
-				if (ratings != null && !ratings.isEmpty()) { // 如果有用户行为数据
+				if (null != ratings && !ratings.isEmpty()) { // 如果有用户行为数据
 					MatrixFactorizationModel model = ALS.train(JavaRDD.toRDD(calculations), rank, numIterations, 0.01);
 					// TODO 判断文件是否存在,如果存在 删除文件目录
 					Configuration hadoopConfiguration = sc.hadoopConfiguration();
