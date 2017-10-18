@@ -3,9 +3,11 @@ package com.hyr.sparkml.als;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
@@ -30,9 +32,22 @@ import scala.Tuple2;
  *
  */
 public final class SparkALSByStreaming {
-	private static final Pattern SPACE = Pattern.compile(" ");
 
+	//	基于Hadoop、Flume、Kafka、spark-streaming、logback、商城系统的实时推荐系统DEMO
+	//	Real time recommendation system DEMO based on Hadoop, Flume, Kafka, spark-streaming, logback and mall system
+	//	商城系统采集的数据集格式 Data Format:
+	//	用户ID，商品ID，用户行为评分，时间戳
+	//	UserID,ItemId,Rating,TimeStamp
+	//	53,1286513,9,1508221762
+	//	53,1172348420,9,1508221762
+	//	53,1179495514,12,1508221762
+	//	53,1184890730,3,1508221762
+	//	53,1210793742,159,1508221762
+	//	53,1215837445,9,1508221762
+	
 	public static void main(String[] args) {
+		System.setProperty("HADOOP_USER_NAME", "root"); // 设置权限用户
+		
 		SparkConf sparkConf = new SparkConf().setAppName("JavaKafkaDirectWordCount").setMaster("local[1]");
 
 		final JavaStreamingContext jssc = new JavaStreamingContext(sparkConf, Durations.seconds(6));
@@ -90,12 +105,26 @@ public final class SparkALSByStreaming {
 				System.out.println("计算总数:" + calculations.count());
 
 				// Build the recommendation model using ALS
-				int rank = 10;
-				int numIterations = 6;
+				int rank = 10; // 模型中隐语义因子的个数
+				int numIterations = 6; // 训练次数
 
 				// 得到训练模型
 				if (ratings != null && !ratings.isEmpty()) { // 如果有用户行为数据
 					MatrixFactorizationModel model = ALS.train(JavaRDD.toRDD(calculations), rank, numIterations, 0.01);
+					// TODO 判断文件是否存在,如果存在 删除文件目录
+					Configuration hadoopConfiguration = sc.hadoopConfiguration();
+					hadoopConfiguration.set("fs.defaultFS", "hdfs://master:8020");
+					FileSystem fs = FileSystem.get(hadoopConfiguration);
+					Path outpath = new Path("/spark-als/model");
+					if (fs.exists(outpath)) {
+						//System.out.println("########### 删除"+outpath.getName()+" ###########");
+						fs.delete(outpath, true);
+					}
+					
+					// 保存model
+					model.save(sc, "hdfs://master:8020/spark-als/model");
+					// TODO 读取model
+					//MatrixFactorizationModel modelLoad = MatrixFactorizationModel.load(sc, "hdfs://master:8020/spark-als/model");
 
 					// 为指定用户推荐10个商品(电影)
 					Rating[] recommendProducts = model.recommendProducts(53, 10);
