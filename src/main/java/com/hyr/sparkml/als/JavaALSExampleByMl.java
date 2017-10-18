@@ -109,7 +109,6 @@ public class JavaALSExampleByMl {
 		Double rmse = evaluator.evaluate(predictions);
 		System.out.println("Root-mean-square error = " + rmse); // 均方根误差;
 		
-		
 		jsc.stop();
 	}
 }
