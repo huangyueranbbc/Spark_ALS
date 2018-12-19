@@ -24,4 +24,14 @@ UserID,ItemId,Rating,TimeStamp
 53,1179495514,12,1508221762  
 53,1184890730,3,1508221762  
 53,1210793742,159,1508221762  
-53,1215837445,9,1508221762  
+53,1215837445,9,1508221762
+
+Kafka Command:
+
+hadoop dfs -mkdir /spark-als/model
+
+hadoop dfs -mkdir /flume/logs
+
+kafka-topics.sh  --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic RECOMMEND_TOPIC
+
+kafka-console-producer.sh --broker-list 192.168.0.193:9092 --topic RECOMMEND_TOPIC < /data/streaming_sample_movielens_ratings.txt

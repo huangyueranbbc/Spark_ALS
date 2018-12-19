@@ -2,11 +2,10 @@ package com.hyr.sparkml.als;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaDoubleRDD;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -17,6 +16,8 @@ import org.apache.spark.mllib.recommendation.ALS;
 import org.apache.spark.mllib.recommendation.MatrixFactorizationModel;
 import org.apache.spark.mllib.recommendation.Rating;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 /**
@@ -26,8 +27,9 @@ import scala.Tuple2;
  */
 public class JavaALSExampleByMlLib {
 
+	private static final Logger log = LoggerFactory.getLogger(JavaALSExampleByMlLib.class);
+
 	public static void main(String[] args) {
-		Logger.getLogger("org").setLevel(Level.WARN);
 		SparkConf conf = new SparkConf().setAppName("JavaALSExample").setMaster("local[4]");
 		JavaSparkContext jsc = new JavaSparkContext(conf);
 
@@ -75,10 +77,8 @@ public class JavaALSExampleByMlLib {
 		JavaPairRDD<Integer, Tuple2<Integer, Double>> fromJavaRDD = JavaPairRDD.fromJavaRDD(ratesAndPreds.map(
 				new Function<Tuple2<Tuple2<Integer, Integer>, Tuple2<Double, Double>>, Tuple2<Integer, Tuple2<Integer, Double>>>() {
 
-					@Override
 					public Tuple2<Integer, Tuple2<Integer, Double>> call(
 							Tuple2<Tuple2<Integer, Integer>, Tuple2<Double, Double>> t) throws Exception {
-						// TODO Auto-generated method stub
 						return new Tuple2<Integer, Tuple2<Integer, Double>>(t._1._1,
 								new Tuple2<Integer, Double>(t._1._2, t._2._2));
 					}
@@ -101,27 +101,24 @@ public class JavaALSExampleByMlLib {
 		try {
 			FileUtils.deleteDirectory(new File("result"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		ratesAndPreds.repartition(1).saveAsTextFile("result/ratesAndPreds.txt");
+		ratesAndPreds.repartition(1).saveAsTextFile("result/ratesAndPreds");
 
 		//为指定用户推荐10个商品(电影)
 		Rating[] recommendProducts = model.recommendProducts(2, 10);
-		for(Rating r:recommendProducts){
-			System.out.println(r.toString());
-		}
-		
+		log.info("get recommend result:{}",Arrays.toString(recommendProducts));
+
 		// 为所有用户推荐TOP N个物品
 		//model.recommendUsersForProducts(10);
 		
 		// 为所有物品推荐TOP N个用户
 		//model.recommendProductsForUsers(10)
 		
-		model.userFeatures().saveAsTextFile("result/userFea.txt");
-		model.productFeatures().saveAsTextFile("result/productFea.txt");
-		System.out.println("Mean Squared Error = " + MSE);
+		model.userFeatures().saveAsTextFile("result/userFea");
+		model.productFeatures().saveAsTextFile("result/productFea");
+		log.info("Mean Squared Error = {}" , MSE);
 
 	}
 
