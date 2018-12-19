@@ -13,6 +13,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.mllib.recommendation.ALS;
 import org.apache.spark.mllib.recommendation.MatrixFactorizationModel;
 import org.apache.spark.mllib.recommendation.Rating;
@@ -37,9 +38,9 @@ public final class SparkALSByStreaming {
 
     private static final Logger log = LoggerFactory.getLogger(SparkALSByStreaming.class);
 
-    private static final String KAFKA_ADDR = "master:9092";
+    private static final String KAFKA_ADDR = "middleware:9092";
     private static final String TOPIC = "RECOMMEND_TOPIC";
-    private static final String HDFS_ADDR = "hdfs://master:9000";
+    private static final String HDFS_ADDR = "hdfs://middleware:9000";
 
     private static final String MODEL_PATH = "/spark-als/model";
 
@@ -88,9 +89,9 @@ public final class SparkALSByStreaming {
         });
 
         // 进行流推荐计算
-        ratingsStream.foreachRDD(new Function<JavaRDD<Rating>, Void>() {
+        ratingsStream.foreachRDD(new VoidFunction<JavaRDD<Rating>>() {
 
-            public Void call(JavaRDD<Rating> ratings) throws Exception {
+            public void call(JavaRDD<Rating> ratings) throws Exception {
                 //  获取到原始的数据集
                 SparkContext sc = ratings.context();
 
@@ -142,14 +143,17 @@ public final class SparkALSByStreaming {
                     }
                 }
 
-                return null;
             }
         });
 
         // ==========================================================================================
 
         jssc.start();
-        jssc.awaitTermination();
+        try {
+            jssc.awaitTermination();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 
         // Local Model

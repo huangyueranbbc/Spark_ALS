@@ -7,7 +7,8 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.ml.evaluation.RegressionEvaluator;
 import org.apache.spark.ml.recommendation.ALS;
 import org.apache.spark.ml.recommendation.ALSModel;
-import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.types.DataTypes;
 import org.slf4j.Logger;
@@ -80,10 +81,10 @@ public class JavaALSExampleByMl {
                         return Rating.parseRating(str);
                     }
                 });
-        DataFrame ratings = sqlContext.createDataFrame(ratingsRDD, Rating.class);
-        DataFrame[] splits = ratings.randomSplit(new double[]{0.8, 0.2}); // //对数据进行分割，80%为训练样例，剩下的为测试样例。
-        DataFrame training = splits[0];
-        DataFrame test = splits[1];
+        Dataset<Row> ratings = sqlContext.createDataFrame(ratingsRDD, Rating.class);
+        Dataset<Row>[] splits = ratings.randomSplit(new double[]{0.8, 0.2}); // //对数据进行分割，80%为训练样例，剩下的为测试样例。
+        Dataset<Row> training = splits[0];
+        Dataset<Row> test = splits[1];
 
         // Build the recommendation model using ALS on the training data
         ALS als = new ALS().setMaxIter(5) // 设置迭代次数
@@ -93,14 +94,14 @@ public class JavaALSExampleByMl {
         ALSModel model = als.fit(training); // //调用算法开始训练
 
 
-        DataFrame itemFactors = model.itemFactors();
+        Dataset<Row> itemFactors = model.itemFactors();
         itemFactors.show(1500);
-        DataFrame userFactors = model.userFactors();
+        Dataset<Row> userFactors = model.userFactors();
         userFactors.show();
 
         // Evaluate the model by computing the RMSE on the test data
-        DataFrame rawPredictions = model.transform(test); //对测试数据进行预测
-        DataFrame predictions = rawPredictions
+        Dataset<Row> rawPredictions = model.transform(test); //对测试数据进行预测
+        Dataset<Row> predictions = rawPredictions
                 .withColumn("rating", rawPredictions.col("rating").cast(DataTypes.DoubleType))
                 .withColumn("prediction", rawPredictions.col("prediction").cast(DataTypes.DoubleType));
 
