@@ -37,9 +37,9 @@ public final class SparkALSByStreaming {
 
     private static final Logger log = LoggerFactory.getLogger(SparkALSByStreaming.class);
 
-    private static final String KAFKA_ADDR = "middleware:9092";
+    private static final String KAFKA_ADDR = "master:9092";
     private static final String TOPIC = "RECOMMEND_TOPIC";
-    private static final String HDFS_ADDR = "hdfs://middleware:9000";
+    private static final String HDFS_ADDR = "hdfs://master:9000";
 
     private static final String MODEL_PATH = "/spark-als/model";
 
