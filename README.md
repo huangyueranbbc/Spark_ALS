@@ -1,4 +1,4 @@
-#Spark-ALS  
+# Spark-ALS  [![Travis](https://img.shields.io/badge/Spark-ALS-green.svg)](https://github.com/huangyueranbbc/Spark_ALS)  [![Travis](https://img.shields.io/badge/Spark-API-green.svg)](http://spark.apache.org/docs/latest/api.html)  [![Travis](https://img.shields.io/badge/Apache-Spark-yellowgreen.svg)](http://spark.apache.org/)  [![Travis](https://img.shields.io/badge/SparkDemo-v1.0.0-red.svg)](https://github.com/huangyueranbbc/SparkDemo)    
 简介  
   
 ALS是alternating least squares的缩写 , 意为交替最小二乘法；而ALS-WR是alternating-least-squares with weighted-λ -regularization的缩写，意为加权正则化交替最小二乘法。该方法常用于基于矩阵分解的推荐系统中。例如：将用户(user)对商品(item)的评分矩阵分解为两个矩阵：一个是用户对商品隐含特征的偏好矩阵，另一个是商品所包含的隐含特征的矩阵。在这个矩阵分解的过程中，评分缺失项得到了填充，也就是说我们可以基于这个填充的评分来给用户最商品推荐了。    
